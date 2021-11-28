@@ -16,12 +16,13 @@ const wordList = [
 
 let selectedWord; // Sträng: ett av orden valt av en slumpgenerator från arrayen ovan
 let guesses = 0; // Number: håller antalet gissningar som gjorts
-let hangmanImg; // Sträng: sökväg till bild som kommer visas (och ändras) fel svar. t.ex. `/images/h1.png`
+let hangmanImg = document.querySelector("#hangman"); // Sträng: sökväg till bild som kommer visas (och ändras) fel svar. t.ex. `/images/h1.png`
+let letterBtn = document.querySelectorAll(".btn--letter");
 
 let msgHolderEl; // DOM-nod: Ger meddelande när spelet är över
-let startGameBtnEl = document.querySelector("#startGameBtn"); // DOM-nod: knappen som du startar spelet med
-let letterButtonEls = document.querySelectorAll("#letterButtons"); // Array av DOM-noder: Knapparna för bokstäverna
-let letterBoxEls = document.querySelector("#letterBoxes"); // Array av DOM-noder: Rutorna där bokstäverna ska stå
+const startGameBtnEl = document.querySelector("#startGameBtn"); // DOM-nod: knappen som du startar spelet med
+const letterButtonEls = document.querySelectorAll("#letterButtons"); // Array av DOM-noder: Knapparna för bokstäverna
+const letterBoxEls = document.querySelector("#letterBoxes"); // Array av DOM-noder: Rutorna där bokstäverna ska stå
 
 // Funktion som startar spelet vid knapptryckning, och då tillkallas andra funktioner
 const init = function () {
@@ -47,13 +48,27 @@ const createLetterBoxes = function () {
   }
 };
 // Funktion som körs när du trycker på bokstäverna och gissar bokstav
+const checkLetter = function () {
+  let letter = this.value;
+  if (selectedWord.indexOf(letter) > -1) {
+    console.log(":)");
+  } else if (selectedWord.indexOf(letter) === -1) {
+    guesses++;
+    score();
+    hangmanImg.src = `images/h${guesses}.png`;
+    console.log(":(");
+  }
+};
+
+const score = function () {
+  let guess = document.querySelector("#guess");
+  if (guesses >= 1) guess.textContent = `Guesses: ${guesses}/6`;
+};
+
 /* 
-- eventListener för var bokstav
-- Loopa igenom ordet för att se om bokstaven finns med
 - Om bokstaven finns ska den displayas
-- Om bokstaven inte finns ska en img läggas till
-- Bokstaven ska försvinna från borden 
- */
+- Bokstaven ska försvinna från borden
+*/
 
 // Funktion som ropas vid vinst eller förlust, gör olika saker beroende tillståndet
 /*
@@ -63,5 +78,7 @@ const createLetterBoxes = function () {
 */
 
 // Funktion som inaktiverar/aktiverar bokstavsknapparna beroende på vilken del av spelet du är på
+for (let i = 0; i < letterBtn.length; i++)
+  letterBtn[i].addEventListener("click", checkLetter);
 
 startGameBtnEl.addEventListener("click", init);
