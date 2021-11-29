@@ -14,23 +14,36 @@ const wordList = [
   "TELESKOP",
 ]; // Array: med spelets alla ord
 
-let selectedWord; // Sträng: ett av orden valt av en slumpgenerator från arrayen ovan
-let guesses = 0; // Number: håller antalet gissningar som gjorts
-let correctGuesses = 0;
-let hangmanImg = document.querySelector("#hangman"); // Sträng: sökväg till bild som kommer visas (och ändras) fel svar. t.ex. `/images/h1.png`
-let letterBtn = document.querySelectorAll(".btn--letter");
+let selectedWord; // Håller ett ord som slumpats från ovan array
+let incorrectGuesses = 0; // Antal fel gissningar
+let correctGuesses = 0; // Antal rätt gissningar
+let hangmanImg = document.querySelector("#hangman"); // Sökväg till bilder som visas vid fel gissning
+const letterBtn = document
+  .getElementById("letterButtons")
+  .querySelectorAll(".btn");
 
 const msgHolderEl = document.querySelector("#message"); // DOM-nod: Ger meddelande när spelet är över
-const startGameBtnEl = document.querySelector("#startGameBtn"); // DOM-nod: knappen som du startar spelet med
-const letterButtonEls = document.querySelectorAll("#letterButtons"); // Array av DOM-noder: Knapparna för bokstäverna
+const startGameBtnEl = document.querySelector("#startGameBtn"); // DOM-nod: knappen som du startar och startar om spelet med
 const letterBoxEls = document.querySelector("#letterBoxes"); // Array av DOM-noder: Rutorna där bokstäverna ska stå
+
+//Återanvändbara funktioner
 
 // Funktion som startar spelet vid knapptryckning, och då tillkallas andra funktioner
 const init = function () {
-  //while (letterBoxEls.firstChild)
-  //letterBoxEls.removeChild(letterBoxEls.firstChild);
+  startGameBtnEl.textContent = "Starta nytt spel";
+  // Ta bort rutorna från tidigare ord och generera ett nytt ord
+  while (letterBoxEls.firstChild)
+    letterBoxEls.removeChild(letterBoxEls.firstChild);
   randomWord(wordList);
   createLetterBoxes();
+  // Lägg till eventListener och class till bokstäverna
+  activateBtns();
+  // Återställ värden
+  incorrectGuesses = 0;
+  correctGuesses = 0;
+  guess.textContent = `Guesses: ${incorrectGuesses}/6`;
+  hangmanImg.src = `images/h${incorrectGuesses}.png`;
+  msgHolderEl.textContent = "";
 };
 
 // Funktion som slumpar fram ett ord
@@ -39,8 +52,7 @@ const randomWord = function (arr) {
   selectedWord = arr[random];
 };
 
-// Funktion som tar fram bokstävernas rutor, antal rutor beror på vilket ord slumptas fram
-
+// Funktion som tar fram bokstävernas rutor
 const createLetterBoxes = function () {
   let letters = selectedWord.split("");
   for (let i = 0; i < letters.length; i++) {
@@ -49,49 +61,64 @@ const createLetterBoxes = function () {
     letterBoxEls.appendChild(li);
   }
 };
-// Funktion som körs när du trycker på bokstäverna och gissar bokstav
-const checkLetter = function () {
-  let letter = this.value;
-  for (let i = 0; i < selectedWord.length; i++)
-    if (selectedWord.charAt(i) === letter) {
-      letterBoxEls.children[
-        i + 1
-      ].innerHTML = `<input type="text" disabled value="${selectedWord[i]}" />`;
-      correctGuesses++;
-      if (correctGuesses === selectedWord.length) {
-        msgHolderEl.textContent = "You win! Congratulations 🏆";
-      }
-    } else if (selectedWord.indexOf(letter) === -1) {
-      guesses++;
-      score();
-      hangmanImg.src = `images/h${guesses}.png`;
-      break;
-    }
-};
 
+// Funktion som ropas vid vinst eller förlust
 const score = function () {
   let guess = document.querySelector("#guess");
-  if (guesses >= 1 && guesses < 6) {
-    guess.textContent = `Guesses: ${guesses}/6`;
-  } else if (guesses === 6) {
-    msgHolderEl.textContent = "Game over 💀";
+  if (correctGuesses === selectedWord.length) {
+    msgHolderEl.textContent = "Grattis, du vann! 🏆";
+    deactivateBtns();
+  } else if (incorrectGuesses >= 1 && incorrectGuesses < 6) {
+    guess.textContent = `Guesses: ${incorrectGuesses}/6`;
+  } else if (incorrectGuesses === 6) {
+    guess.textContent = `Guesses: ${incorrectGuesses}/6`;
+    msgHolderEl.textContent = "Du förlorar... 💀";
+    deactivateBtns();
   }
 };
 
-/* 
-- Bokstaven ska försvinna från borden
-*/
+// Funktion som aktiverar bokstavsknapparna
+const activateBtns = function () {
+  for (let i = 0; i < letterBtn.length; i++) {
+    letterBtn[i].addEventListener("click", checkLetter);
+    letterBtn[i].classList.add("btn--stripe");
+    letterBtn[i].classList.remove("btn--hidden");
+  }
+};
 
-// Funktion som ropas vid vinst eller förlust, gör olika saker beroende tillståndet
-/*
-- Om spelaren vinner ändra styling
-- Om spelaren förlorar ändra styling
-- Alla knappar förutom "starta spelet" ska disableas när spelaren vinner/förlorar
-*/
+// Funktion som inaktiverar bokstavsknapparna
+const deactivateBtns = function () {
+  for (let i = 0; i < letterBtn.length; i++) {
+    letterBtn[i].removeEventListener("click", checkLetter);
+    letterBtn[i].classList.remove("btn--stripe");
+    letterBtn[i].classList.add("btn--hidden");
+  }
+};
 
-// Funktion som inaktiverar/aktiverar bokstavsknapparna beroende på vilken del av spelet du är på
-for (let i = 0; i < letterBtn.length; i++) {
-  letterBtn[i].addEventListener("click", checkLetter);
-}
+// Funktioner för att spela spelet
 
+// Starta eller starta om spelet
 startGameBtnEl.addEventListener("click", init);
+
+// Funktion som körs när du trycker på bokstäverna och gissar bokstav
+const checkLetter = function () {
+  let letter = this.value;
+  // Tar bort eventListener och gömmer gissad bokstav
+  this.removeEventListener("click", checkLetter);
+  this.classList.remove("btn--stripe");
+  this.classList.add("btn--hidden");
+  // Loop som jämför gissad bokstav med bokstäverna i ordet
+  for (let i = 0; i < selectedWord.length; i++)
+    if (selectedWord.charAt(i) === letter) {
+      letterBoxEls.children[
+        i
+      ].innerHTML = `<input type="text" disabled value="${selectedWord[i]}" />`;
+      correctGuesses++;
+      score();
+    } else if (selectedWord.indexOf(letter) === -1) {
+      incorrectGuesses++;
+      score();
+      hangmanImg.src = `images/h${incorrectGuesses}.png`;
+      break;
+    }
+};

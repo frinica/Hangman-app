@@ -220,3 +220,7 @@ footer {
   );
   border-top: 1px solid #000;
 }
+
+.btn--hidden {
+  display: none;
+}
