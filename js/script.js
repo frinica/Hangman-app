@@ -1,5 +1,5 @@
 "use strict";
-// Globala variabler
+// Global variables
 
 const wordList = [
   "VINTERGATAN",
@@ -12,33 +12,33 @@ const wordList = [
   "SUPERNOVA",
   "LJUSÅR",
   "TELESKOP",
-]; // Array: med spelets alla ord
+]; // Array that contains the words of the game
 
-let selectedWord; // Håller ett ord som slumpats från ovan array
-let incorrectGuesses = 0; // Antal fel gissningar
-let correctGuesses = 0; // Antal rätt gissningar
-let hangmanImg = document.querySelector("#hangman"); // Sökväg till bilder som visas vid fel gissning
+let selectedWord; // Contain a random word from the array
+let incorrectGuesses = 0; // Counter for incorrect guesses
+let correctGuesses = 0; // Counter for correct guesses
+let hangmanImg = document.querySelector("#hangman"); // Path to the images that displays when a guess is incorrect
 const letterBtn = document
   .getElementById("letterButtons")
-  .querySelectorAll(".btn");
+  .querySelectorAll(".btn"); // Selecting the buttons in the ul
 
-const msgHolderEl = document.querySelector("#message"); // DOM-nod: Ger meddelande när spelet är över
-const startGameBtnEl = document.querySelector("#startGameBtn"); // DOM-nod: knappen som du startar och startar om spelet med
-const letterBoxEls = document.querySelector("#letterBoxes"); // Array av DOM-noder: Rutorna där bokstäverna ska stå
+const msgHolderEl = document.querySelector("#message"); // Displays message when the game is over
+const startGameBtnEl = document.querySelector("#startGameBtn"); // The button that will start or restart the game
+const letterBoxEls = document.querySelector("#letterBoxes"); // Array for the boxes that will contain the letters in the word
 
-//Återanvändbara funktioner
+//Reusable functions below
 
-// Funktion som startar spelet vid knapptryckning, och då tillkallas andra funktioner
+// This function is called when player start/restart the game
 const init = function () {
   startGameBtnEl.textContent = "Starta nytt spel";
-  // Ta bort rutorna från tidigare ord och generera ett nytt ord
+  // Remove previous letter boxes
   while (letterBoxEls.firstChild)
     letterBoxEls.removeChild(letterBoxEls.firstChild);
   randomWord(wordList);
   createLetterBoxes();
-  // Lägg till eventListener och class till bokstäverna
+  // Add event listener and class to letter buttons
   activateBtns();
-  // Återställ värden
+  // Reset values
   incorrectGuesses = 0;
   correctGuesses = 0;
   guess.textContent = `Guesses: ${incorrectGuesses}/6`;
@@ -46,13 +46,13 @@ const init = function () {
   msgHolderEl.textContent = "";
 };
 
-// Funktion som slumpar fram ett ord
+// This function will randomize a word from the array
 const randomWord = function (arr) {
   let random = Math.floor(Math.random() * arr.length);
   selectedWord = arr[random];
 };
 
-// Funktion som tar fram bokstävernas rutor
+// This function creates letter boxes to be displayed
 const createLetterBoxes = function () {
   let letters = selectedWord.split("");
   for (let i = 0; i < letters.length; i++) {
@@ -61,8 +61,7 @@ const createLetterBoxes = function () {
     letterBoxEls.appendChild(li);
   }
 };
-
-// Funktion som ropas vid vinst eller förlust
+// This function is called when a guess has been made to update the game board
 const score = function () {
   let guess = document.querySelector("#guess");
   if (correctGuesses === selectedWord.length) {
@@ -77,7 +76,7 @@ const score = function () {
   }
 };
 
-// Funktion som aktiverar bokstavsknapparna
+// This function activates the letter buttons
 const activateBtns = function () {
   for (let i = 0; i < letterBtn.length; i++) {
     letterBtn[i].addEventListener("click", checkLetter);
@@ -86,7 +85,7 @@ const activateBtns = function () {
   }
 };
 
-// Funktion som inaktiverar bokstavsknapparna
+// This function deactivate the letter buttons
 const deactivateBtns = function () {
   for (let i = 0; i < letterBtn.length; i++) {
     letterBtn[i].removeEventListener("click", checkLetter);
@@ -95,19 +94,19 @@ const deactivateBtns = function () {
   }
 };
 
-// Funktioner för att spela spelet
+// Functions to play the game below
 
-// Starta eller starta om spelet
+// Start or restart the game
 startGameBtnEl.addEventListener("click", init);
 
-// Funktion som körs när du trycker på bokstäverna och gissar bokstav
+// This function is called when a letter is guessed
 const checkLetter = function () {
   let letter = this.value;
-  // Tar bort eventListener och gömmer gissad bokstav
+  // Remove event listener and hide the guessed letter
   this.removeEventListener("click", checkLetter);
   this.classList.remove("btn--stripe");
   this.classList.add("btn--hidden");
-  // Loop som jämför gissad bokstav med bokstäverna i ordet
+  // Loop that compares the guessed letter to the letters in the word
   for (let i = 0; i < selectedWord.length; i++)
     if (selectedWord.charAt(i) === letter) {
       letterBoxEls.children[
