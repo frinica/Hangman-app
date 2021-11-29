@@ -66,13 +66,13 @@ const createLetterBoxes = function () {
 const score = function () {
   let guess = document.querySelector("#guess");
   if (correctGuesses === selectedWord.length) {
-    msgHolderEl.textContent = "Grattis, du vann! 🏆";
+    msgHolderEl.textContent = "Grattis, du vann! 🌟";
     deactivateBtns();
   } else if (incorrectGuesses >= 1 && incorrectGuesses < 6) {
     guess.textContent = `Guesses: ${incorrectGuesses}/6`;
   } else if (incorrectGuesses === 6) {
     guess.textContent = `Guesses: ${incorrectGuesses}/6`;
-    msgHolderEl.textContent = "Du förlorar... 💀";
+    msgHolderEl.textContent = "Du förlorade... 💀";
     deactivateBtns();
   }
 };
